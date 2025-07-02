@@ -23,3 +23,22 @@ class ConfiguracionSistema:
     puerto_servidor: int = 8000
     temperatura_llm: float = 0.7
     contexto_maximo: int = 2048
+# 📱 Modelos de Datos con Pydantic (Salida Estructurada)
+class Celular(BaseModel):
+    """
+    Autor: Fabiola
+    Modelo de datos estructurados para celulares usando Pydantic
+    """
+    id: int = Field(description="ID único del celular")
+    marca: str = Field(description="Marca del celular")
+    modelo: str = Field(description="Modelo específico")
+    precio: float = Field(description="Precio en soles")
+    almacenamiento: str = Field(description="Capacidad de almacenamiento")
+    ram: str = Field(description="Memoria RAM")
+    camara_principal: str = Field(description="Resolución cámara principal")
+    camara_frontal: str = Field(description="Resolución cámara frontal")
+    pantalla: str = Field(description="Tamaño y tipo de pantalla")
+    bateria: str = Field(description="Capacidad de batería")
+    puntuacion_foto: int = Field(description="Puntuación calidad de fotos (1-10)")
+    puntuacion_rendimiento: int = Field(description="Puntuación rendimiento (1-10)")
+    caracteristicas_especiales: List[str] = Field(description="Características destacadas")
