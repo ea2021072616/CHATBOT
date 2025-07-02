@@ -1463,7 +1463,7 @@ Todos estos celulares los tenemos en stock. ¿Te interesa alguno? ¡Contáctanos
             server_port=7860,
             show_error=True
         )
-        # 🚀 Clase Principal del Sistema
+# 🚀 Clase Principal del Sistema
 class CelularBotSystem:
     """
     Autor: Erick
@@ -1476,8 +1476,7 @@ class CelularBotSystem:
         self.chatbot_engine = None
         self.interfaz_web = None
 
-
-   def inicializar_sistema(self) -> None:
+    def inicializar_sistema(self) -> None:
         """
         Autor: Erick
         Inicializa todos los componentes del sistema
@@ -1502,3 +1501,15 @@ class CelularBotSystem:
         self.interfaz_web = InterfazWeb(self.chatbot_engine)
 
         print("✅ Sistema inicializado correctamente!")
+
+    def ejecutar(self) -> None:
+        """
+        Autor: Erick
+        Ejecuta el sistema completo
+        """
+        self.inicializar_sistema()
+
+        print("🌐 Lanzando interfaz web...")
+        print("🔗 El recomendador de celulares estará disponible en la URL que se muestre a continuación")
+
+        self.interfaz_web.lanzar(compartir=True)
