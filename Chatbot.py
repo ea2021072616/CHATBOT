@@ -372,3 +372,19 @@ class ServidorLLM(ModeloAIBase):
         """
         res = self.modelo.create_chat_completion(messages=mensajes)
         return res["choices"][0]["message"]["content"]
+
+    def iniciar_servidor(self) -> None:
+        """
+        Autor: Erick
+        Inicia el servidor FastAPI en un hilo separado
+        """
+        def ejecutar_servidor():
+            import uvicorn
+            uvicorn.run(self.app, host="0.0.0.0", port=self.config.puerto_servidor, log_level="error")
+
+        nest_asyncio.apply()
+        hilo_servidor = threading.Thread(target=ejecutar_servidor, daemon=True)
+        hilo_servidor.start()
+        print(f"🌐 Servidor LLM iniciado en puerto {self.config.puerto_servidor}")
+
+# 💬 Gestor de Conversaciones
