@@ -1463,3 +1463,42 @@ Todos estos celulares los tenemos en stock. ¿Te interesa alguno? ¡Contáctanos
             server_port=7860,
             show_error=True
         )
+        # 🚀 Clase Principal del Sistema
+class CelularBotSystem:
+    """
+    Autor: Erick
+    Clase principal que coordina todo el sistema de recomendación
+    """
+
+    def __init__(self):
+        self.config = ConfiguracionSistema()
+        self.servidor_llm = None
+        self.chatbot_engine = None
+        self.interfaz_web = None
+
+
+   def inicializar_sistema(self) -> None:
+        """
+        Autor: Erick
+        Inicializa todos los componentes del sistema
+        """
+        print("🚀 Inicializando CelularBot System...")
+
+        # 1. Inicializar servidor LLM
+        print("📡 Configurando servidor LLM...")
+        self.servidor_llm = ServidorLLM(self.config)
+        self.servidor_llm.iniciar_servidor()
+
+        # Esperar a que el servidor esté listo
+        time.sleep(5)
+
+        # 2. Inicializar motor del chatbot con base de datos
+        print("🧠 Configurando motor del chatbot...")
+        self.chatbot_engine = ChatbotEngine(self.config)
+        print(f"📱 Base de datos cargada con {len(self.chatbot_engine.base_datos.obtener_todos())} celulares")
+
+        # 3. Crear interfaz web
+        print("🎨 Creando interfaz web...")
+        self.interfaz_web = InterfazWeb(self.chatbot_engine)
+
+        print("✅ Sistema inicializado correctamente!")
