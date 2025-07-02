@@ -273,3 +273,118 @@ class ModeloAIBase(ABC):
     def generar_respuesta(self, mensajes: List[Dict]) -> str:
         """Genera una respuesta basada en los mensajes"""
         pass
+# 🚀 Servidor LLM con FastAPI
+class ServidorLLM(ModeloAIBase):
+    """
+    Autor: Erick
+    Servidor que expone el modelo Llama como API compatible con OpenAI
+    """
+
+    def __init__(self, config: ConfiguracionSistema):
+        self.config = config
+        self.modelo = None
+        self.app = FastAPI(title="EmpresaBot LLM Server")
+        self.inicializar_modelo()
+        self._configurar_rutas()
+
+    def inicializar_modelo(self) -> None:
+        """
+        Autor: Erick
+        Inicializa el modelo Llama con configuraciones optimizadas
+        """
+        print("🤖 Inicializando modelo Llama 3...")
+        self.modelo = Llama(
+            model_path=self.config.modelo_path,
+            n_ctx=self.config.contexto_maximo,
+            n_gpu_layers=-1,  # Usar GPU si está disponible
+            chat_format="chatml",
+            verbose=False
+        )
+        print("✅ Modelo inicializado correctamente")
+
+    def _configurar_rutas(self) -> None:
+        """
+        Autor: Erick
+        Configura las rutas de la API
+        """
+        @self.app.post("/v1/chat/completions")
+        async def chat_completions(request: Request):
+            return await self._procesar_completacion_chat(request)
+
+    async def _procesar_completacion_chat(self, request: Request) -> JSONResponse:
+        """
+        Autor: Erick
+        Procesa las solicitudes de completación de chat
+        """
+        body = await request.json()
+        mensajes = body.get("messages", [])
+        stream = body.get("stream", False)
+        temperature = body.get("temperature", self.config.temperatura_llm)
+
+        if not stream:
+            return self._generar_respuesta_sincrona(mensajes, temperature)
+        else:
+            return self._generar_respuesta_stream(mensajes, temperature)
+
+    def _generar_respuesta_sincrona(self, mensajes: List[Dict], temperature: float) -> JSONResponse:
+        """
+        Autor: Erick
+        Genera respuesta síncrona
+        """
+        res = self.modelo.create_chat_completion(messages=mensajes, temperature=temperature)
+        return JSONResponse(content={
+            "id": f"chatcmpl-{uuid.uuid4()}",
+            "object": "chat.completion",
+            "created": int(time.time()),
+            "model": "llama-3-8b-instruct",
+            "choices": [{
+                "index": 0,
+                "message": res["choices"][0]["message"],
+                "finish_reason": res["choices"][0].get("finish_reason", "stop")
+            }],
+            "usage": res.get("usage", {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0
+            })
+        })
+
+    def _generar_respuesta_stream(self, mensajes: List[Dict], temperature: float) -> StreamingResponse:
+        """
+        Autor: Erick
+        Genera respuesta en modo streaming
+        """
+        def stream_generator():
+            for chunk in self.modelo.create_chat_completion(
+                messages=mensajes, temperature=temperature, stream=True
+            ):
+                choice = chunk["choices"][0]
+                delta = choice.get("delta", {}) or choice.get("message", {})
+                yield f"data: {json.dumps({'id': f'chatcmpl-{uuid.uuid4()}', 'object': 'chat.completion.chunk', 'created': int(time.time()), 'model': 'llama-3-8b-instruct', 'choices': [{'delta': delta, 'index': 0, 'finish_reason': choice.get('finish_reason')}]})}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(stream_generator(), media_type="text/event-stream")
+
+    def generar_respuesta(self, mensajes: List[Dict]) -> str:
+        """
+        Autor: Erick
+        Implementación del método abstracto
+        """
+        res = self.modelo.create_chat_completion(messages=mensajes)
+        return res["choices"][0]["message"]["content"]
+
+    def iniciar_servidor(self) -> None:
+        """
+        Autor: Erick
+        Inicia el servidor FastAPI en un hilo separado
+        """
+        def ejecutar_servidor():
+            import uvicorn
+            uvicorn.run(self.app, host="0.0.0.0", port=self.config.puerto_servidor, log_level="error")
+
+        nest_asyncio.apply()
+        hilo_servidor = threading.Thread(target=ejecutar_servidor, daemon=True)
+        hilo_servidor.start()
+        print(f"🌐 Servidor LLM iniciado en puerto {self.config.puerto_servidor}")
+
+# 💬 Gestor de Conversaciones
