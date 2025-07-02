@@ -729,7 +729,7 @@ def procesar_mensaje(self, mensaje: str, id_sesion: str = "default") -> str:
 
         return respuesta
 
-    def procesar_recomendacion_estructurada(self, consulta: ConsultaUsuario) -> RecomendacionEstructurada:
+def procesar_recomendacion_estructurada(self, consulta: ConsultaUsuario) -> RecomendacionEstructurada:
         """
         Autor: Dylan
         Procesa una recomendación usando salida estructurada con Pydantic
