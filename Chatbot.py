@@ -1073,3 +1073,236 @@ def _crear_catalogo_dataframe(self):
             ])
 
         return data
+
+
+def _obtener_estilos_css(self) -> str:
+        """
+        Autor: Fabiola
+        Estilos CSS personalizados para Mijito Store
+        """
+        return """
+        /* Estilo general del contenedor */
+        .gradio-container {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #fef7f0 0%, #fed7d7 50%, #f97316 100%);
+            min-height: 100vh;
+        }
+
+        /* Estilo del chatbot */
+        .chatbot {
+            border-radius: 20px !important;
+            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.2) !important;
+            border: 2px solid rgba(255, 107, 53, 0.1) !important;
+            background: white !important;
+        }
+
+        /* Pestañas principales */
+        .tab-nav {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%) !important;
+            border-radius: 15px 15px 0 0 !important;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3) !important;
+        }
+
+        .tab-nav button {
+            color: white !important;
+            font-weight: bold !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 15px 25px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .tab-nav button:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .tab-nav button.selected {
+            background: rgba(255, 255, 255, 0.3) !important;
+            border-bottom: 3px solid white !important;
+        }
+
+        /* Botones principales */
+        .btn-enviar {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%) !important;
+            color: white !important;
+            font-weight: bold !important;
+            border: none !important;
+            border-radius: 25px !important;
+            padding: 12px 30px !important;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-enviar:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.6) !important;
+        }
+
+        .btn-recomendar {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            color: white !important;
+            font-weight: bold !important;
+            border: none !important;
+            border-radius: 25px !important;
+            padding: 15px 35px !important;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-recomendar:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6) !important;
+        }
+
+        .btn-limpiar {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 25px !important;
+            padding: 12px 30px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-limpiar:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 15px rgba(107, 114, 128, 0.4) !important;
+        }
+
+        /* Botones de preguntas rápidas */
+        .btn-gaming {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 10px 20px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+        }
+
+        .btn-gaming:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5) !important;
+        }
+
+        .btn-fotos {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 10px 20px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3) !important;
+        }
+
+        .btn-fotos:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5) !important;
+        }
+
+        .btn-economico {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 10px 20px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3) !important;
+        }
+
+        .btn-economico:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5) !important;
+        }
+
+        .btn-ubicacion {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 10px 20px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3) !important;
+        }
+
+        .btn-ubicacion:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5) !important;
+        }
+
+        /* Campo de texto */
+        .gr-textbox textarea {
+            border-radius: 15px !important;
+            border: 2px solid rgba(255, 107, 53, 0.2) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .gr-textbox textarea:focus {
+            border-color: #ff6b35 !important;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
+        }
+
+        /* Sliders y controles */
+        .gr-slider input[type="range"] {
+            accent-color: #ff6b35 !important;
+        }
+
+        .gr-checkbox input[type="checkbox"]:checked {
+            background-color: #ff6b35 !important;
+            border-color: #ff6b35 !important;
+        }
+
+        .gr-dropdown .dropdown {
+            border-radius: 15px !important;
+            border: 2px solid rgba(255, 107, 53, 0.2) !important;
+        }
+
+        /* Animaciones suaves */
+        * {
+            transition: all 0.3s ease !important;
+        }
+
+        /* Efectos hover para tarjetas */
+        div[style*="border-left: 5px solid"] {
+            transition: all 0.3s ease !important;
+        }
+
+        div[style*="border-left: 5px solid"]:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Estilo para el DataFrame del catálogo */
+        .gr-dataframe {
+            border-radius: 15px !important;
+            overflow: hidden !important;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.15) !important;
+        }
+
+        .gr-dataframe th {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%) !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+
+        .gr-dataframe tr:nth-child(even) {
+            background: rgba(255, 107, 53, 0.05) !important;
+        }
+
+        /* Mejoras de responsividad */
+        @media (max-width: 768px) {
+            .tab-nav button {
+                padding: 10px 15px !important;
+                font-size: 0.9em !important;
+            }
+
+            .btn-enviar, .btn-recomendar {
+                padding: 10px 20px !important;
+            }
+        }
+        """
