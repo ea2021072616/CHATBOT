@@ -42,3 +42,14 @@ class Celular(BaseModel):
     puntuacion_foto: int = Field(description="Puntuación calidad de fotos (1-10)")
     puntuacion_rendimiento: int = Field(description="Puntuación rendimiento (1-10)")
     caracteristicas_especiales: List[str] = Field(description="Características destacadas")
+
+class RecomendacionEstructurada(BaseModel):
+    """
+    Autor: Erick
+    Modelo de salida estructurada para recomendaciones
+    """
+    celular_recomendado: Celular = Field(description="Celular principal recomendado")
+    alternativas: List[Celular] = Field(description="Lista de alternativas")
+    razonamiento: str = Field(description="Explicación detallada de la recomendación")
+    coincidencia_presupuesto: bool = Field(description="Si cumple con el presupuesto")
+    puntuacion_match: float = Field(description="Puntuación de coincidencia (0-1)")
