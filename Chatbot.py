@@ -1306,3 +1306,160 @@ def _obtener_estilos_css(self) -> str:
             }
         }
         """
+def _configurar_eventos(self, historial, mensaje, btn_enviar, btn_limpiar,
+                          presupuesto_input, prioridad_camara, prioridad_rendimiento,
+                          uso_principal, marca_preferida, btn_recomendar, resultado_recomendacion,
+                          btn_gaming, btn_fotos, btn_economico, btn_ubicacion) -> None:
+        """
+        Autor: Fabiola
+        Configura los eventos de la interfaz
+        """
+        def procesar_mensaje(historial_actual, mensaje_usuario):
+            if not mensaje_usuario.strip():
+                return historial_actual, ""
+
+            # Procesar mensaje con el motor del chatbot
+            respuesta = self.chatbot_engine.procesar_mensaje(mensaje_usuario)
+
+            # Update historial to match 'messages' type
+            historial_actual.append({"role": "user", "content": mensaje_usuario})
+            historial_actual.append({"role": "assistant", "content": respuesta})
+
+            return historial_actual, ""
+
+        def enviar_pregunta_rapida(pregunta, historial_actual):
+            """Procesa una pregunta rápida predefinida"""
+            return procesar_mensaje(historial_actual, pregunta)
+
+        def procesar_recomendacion_estructurada(presupuesto, camara, rendimiento, uso, marca):
+            """Procesa recomendación con parámetros estructurados"""
+            try:
+                consulta = ConsultaUsuario(
+                    presupuesto_max=presupuesto,
+                    prioridad_camara=camara,
+                    prioridad_rendimiento=rendimiento,
+                    uso_principal=uso,
+                    marca_preferida=None if marca == "Sin preferencia" else marca
+                )
+
+                recomendacion = self.chatbot_engine.procesar_recomendacion_estructurada(consulta)
+
+                # Formatear resultado de manera más amigable
+                resultado = f"""## 🏆 **¡Tu Celular Perfecto!**
+
+### 📱 **{recomendacion.celular_recomendado.marca} {recomendacion.celular_recomendado.modelo}**
+
+💰 **Precio:** S/{recomendacion.celular_recomendado.precio:,.0f}
+📸 **Cámara:** {recomendacion.celular_recomendado.camara_principal}
+💾 **RAM:** {recomendacion.celular_recomendado.ram}
+📱 **Pantalla:** {recomendacion.celular_recomendado.pantalla}
+🔋 **Batería:** {recomendacion.celular_recomendado.bateria}
+
+### ⭐ **Puntuaciones**
+📸 **Fotos:** {recomendacion.celular_recomendado.puntuacion_foto}/10
+⚡ **Rendimiento:** {recomendacion.celular_recomendado.puntuacion_rendimiento}/10
+
+### 🤔 **¿Por qué te recomiendo este?**
+{recomendacion.razonamiento}
+
+### 📊 **Análisis**
+✅ **Presupuesto:** {"✅ Dentro de tu presupuesto" if recomendacion.coincidencia_presupuesto else "⚠️ Ligeramente fuera del presupuesto"}
+🎯 **Compatibilidad:** {recomendacion.puntuacion_match:.0%}
+
+## 🔄 **Otras opciones geniales:**"""
+
+                for i, alt in enumerate(recomendacion.alternativas, 1):
+                    resultado += f"""
+
+### {i}. **{alt.marca} {alt.modelo}**
+💰 S/{alt.precio:,.0f} | 📸 {alt.camara_principal} | 💾 {alt.ram}"""
+
+                resultado += f"""
+
+### 🏪 **¡Disponibles en MijoStore!**
+Todos estos celulares los tenemos en stock. ¿Te interesa alguno? ¡Contáctanos para más información! 📞"""
+
+                return resultado
+
+            except Exception as e:
+                return f"❌ **Oops! Algo salió mal:** {str(e)}"
+
+        def limpiar_chat():
+            # Restaurar mensaje de bienvenida
+            return [{
+                "role": "assistant",
+                "content": """🎉 **¡Hola! Soy Mijito, tu asistente virtual de MijoStore** 📱
+
+¡Bienvenido! Estoy aquí para ayudarte a encontrar el celular perfecto según tus necesidades y presupuesto. Con tecnología de IA avanzada, puedo darte recomendaciones personalizadas.
+
+### 🤖 ¿En qué puedo ayudarte hoy?
+- 📱 Recomendarte el celular ideal para ti
+- 💰 Filtrar opciones por tu presupuesto
+- 📸 Encontrar los mejores para fotografía
+- 🎮 Celulares perfectos para gaming
+- 📍 Información sobre nuestras tiendas
+- 📞 Datos de contacto y ubicación
+
+### 💡 **¡Haz clic en una pregunta rápida para empezar!**"""
+            }], ""
+
+        # Eventos de botones principales
+        btn_enviar.click(
+            fn=procesar_mensaje,
+            inputs=[historial, mensaje],
+            outputs=[historial, mensaje]
+        )
+
+        mensaje.submit(
+            fn=procesar_mensaje,
+            inputs=[historial, mensaje],
+            outputs=[historial, mensaje]
+        )
+
+        btn_limpiar.click(
+            fn=limpiar_chat,
+            outputs=[historial, mensaje]
+        )
+
+        # Eventos de preguntas rápidas
+        btn_gaming.click(
+            fn=lambda hist: enviar_pregunta_rapida("Necesito un celular para gaming con presupuesto de 3000 soles", hist),
+            inputs=[historial],
+            outputs=[historial, mensaje]
+        )
+
+        btn_fotos.click(
+            fn=lambda hist: enviar_pregunta_rapida("Busco el celular con mejor cámara por 2000 soles", hist),
+            inputs=[historial],
+            outputs=[historial, mensaje]
+        )
+
+        btn_economico.click(
+            fn=lambda hist: enviar_pregunta_rapida("¿Cuál es el mejor celular económico por 1500 soles?", hist),
+            inputs=[historial],
+            outputs=[historial, mensaje]
+        )
+
+        btn_ubicacion.click(
+            fn=lambda hist: enviar_pregunta_rapida("¿Dónde están ubicados?", hist),
+            inputs=[historial],
+            outputs=[historial, mensaje]
+        )
+
+        btn_recomendar.click(
+            fn=procesar_recomendacion_estructurada,
+            inputs=[presupuesto_input, prioridad_camara, prioridad_rendimiento, uso_principal, marca_preferida],
+            outputs=[resultado_recomendacion]
+        )
+
+    def lanzar(self, compartir: bool = True) -> None:
+        """
+        Autor: Fabiola
+        Lanza la interfaz web
+        """
+        self.app.launch(
+            share=compartir,
+            server_name="0.0.0.0",
+            server_port=7860,
+            show_error=True
+        )
