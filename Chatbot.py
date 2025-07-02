@@ -435,3 +435,262 @@ class GestorConversacion:
         """
         historial = self.obtener_historial(id_sesion)
         return "\n".join([f"{rol}: {mensaje}" for rol, mensaje in historial])
+
+
+# 🧠 Motor Principal del Chatbot
+class ChatbotEngine:
+    """
+    Autor: Dylan
+    Motor principal que coordina todas las funcionalidades del chatbot
+    """
+
+    def __init__(self, config: ConfiguracionSistema):
+        self.config = config
+        self.gestor_conversacion = GestorConversacion()
+        self.base_datos = BaseDatosCelulares()
+        self.info_tienda = InformacionTienda()
+        self.llm_client = None
+        self.cadena_chat: Optional[Runnable] = None
+        self.cadena_recomendacion: Optional[Runnable] = None
+        self.cadenas_paralelas: Optional[Runnable] = None
+        self._inicializar_llm()
+        self._configurar_cadenas()
+
+    def _inicializar_llm(self) -> None:
+        """
+        Autor: Erick
+        Inicializa el cliente LLM
+        """
+        self.llm_client = ChatOpenAI(
+            base_url=f'http://localhost:{self.config.puerto_servidor}/v1',
+            openai_api_key="not-needed",
+            temperature=self.config.temperatura_llm
+        )
+
+    def _configurar_cadenas(self) -> None:
+        """
+        Autor: Dylan
+        Configura las cadenas principales y paralelas del sistema
+        """
+        # Cadena principal de chat
+        prompt_chat = ChatPromptTemplate.from_messages([
+            ("system", """Eres Mijito, el asistente virtual amigable y experto de MijoStore en Tacna. Tu personalidad es:
+- 🤗 Amable y cercano
+- 🧠 Conocedor de tecnología
+- 💼 Profesional pero accesible
+- 🎯 Enfocado en ayudar al cliente
+
+INFORMACIÓN DE LA TIENDA:
+- 🏪 Nombre: MijoStore
+- 📍 Ubicación: Calle Zela Nro 267, Tacna / Cnel. Inclan 382-196, Tacna 23001
+- 📞 Contacto: 052632704, +51952909892
+- 📧 Email: mijostore.online@gmail.com
+- 🛍️ Especialidad: Venta de celulares, accesorios y servicios técnicos
+
+INSTRUCCIONES:
+1. 🤝 Saluda de manera amistosa si es el primer mensaje
+2. 🧐 Analiza lo que realmente necesita el usuario
+3. 💡 Ofrece soluciones específicas y útiles
+4. 😊 Usa emojis para hacer la conversación más agradable
+5. 🗣️ Habla de manera natural y conversacional
+6. ❓ Haz preguntas para entender mejor sus necesidades
+7. ✨ Siempre termina ofreciendo más ayuda
+
+Para recomendaciones de celulares, pregunta sobre:
+- 💰 Presupuesto máximo
+- 📸 Si prioriza cámara
+- ⚡ Si prioriza rendimiento
+- 🎮 Uso principal (fotos, gaming, trabajo, etc.)
+- 🏷️ Marca preferida
+
+CONTEXTO: {contexto}
+HISTORIAL: {chat_conversation}
+
+Responde de manera natural, amigable y profesional. Usa emojis apropiados."""),
+            ("placeholder", "{chat_conversation}")
+        ])
+
+        # Cadena de análisis de consulta (Runnable Function)
+        def analizar_consulta(inputs: Dict) -> Dict:
+            """Función ejecutable para analizar consultas del usuario"""
+            consulta = inputs["mensaje"]
+
+            # Análisis básico con regex
+            presupuesto = None
+            presupuesto_match = re.search(r'(\d+(?:\.\d+)?)\s*soles?', consulta.lower())
+            if presupuesto_match:
+                presupuesto = float(presupuesto_match.group(1))
+
+            prioridad_camara = any(word in consulta.lower() for word in ['foto', 'camara', 'cámara', 'selfie'])
+            prioridad_rendimiento = any(word in consulta.lower() for word in ['rápido', 'gaming', 'juego', 'rendimiento'])
+
+            return {
+                **inputs,
+                "presupuesto_detectado": presupuesto,
+                "prioridad_camara": prioridad_camara,
+                "prioridad_rendimiento": prioridad_rendimiento
+            }
+
+        # Cadena de recomendación estructurada
+        prompt_recomendacion = ChatPromptTemplate.from_messages([
+            ("system", """Eres Mijito, el asistente virtual experto y amigable de MijoStore. Tu objetivo es dar recomendaciones personalizadas y fáciles de entender.
+
+CRITERIOS USUARIO:
+- Presupuesto: {presupuesto_detectado}
+- Prioridad cámara: {prioridad_camara}
+- Prioridad rendimiento: {prioridad_rendimiento}
+
+BASE DE DATOS DISPONIBLE:
+{celulares_disponibles}
+
+INSTRUCCIONES PARA RESPUESTA AMIGABLE:
+1. Saluda de manera amistosa y menciona que entiendes sus necesidades
+2. Analiza las opciones de forma sencilla y conversacional
+3. Recomienda 1 celular principal explicando POR QUÉ es perfecto para él
+4. Menciona 2-3 alternativas brevemente
+5. Usa emojis, formato atractivo y lenguaje cercano
+6. Incluye datos específicos pero de forma amigable
+7. Termina preguntando si necesita más información
+
+FORMATO DE RESPUESTA:
+🎯 **¡Perfecto! He encontrado el celular ideal para ti**
+
+📱 **MI RECOMENDACIÓN PRINCIPAL:**
+**[Marca] [Modelo]** - ¡Esta es mi elección!
+
+💰 **Precio:** S/[precio]
+📸 **Cámara:** [detalles de cámara]
+🚀 **Rendimiento:** [detalles de rendimiento]
+🔋 **Batería:** [capacidad]
+💾 **Almacenamiento:** [capacidad]
+
+🤔 **¿Por qué este celular?**
+[Explicación personalizada y amigable]
+
+🔄 **Otras opciones que podrían interesarte:**
+• **[Alternativa 1]** - S/[precio] - [breve descripción]
+• **[Alternativa 2]** - S/[precio] - [breve descripción]
+
+✨ **En MijoStore tenemos todos estos modelos disponibles** ¿Te gustaría conocer más detalles de alguno o necesitas información sobre garantías y formas de pago?
+
+Responde de manera natural, amigable y profesional."""),
+            ("human", "{mensaje}")
+        ])
+
+        # Funciones ejecutables (Runnables)
+        analizar_runnable = RunnableLambda(analizar_consulta)
+
+        def obtener_celulares_contexto(inputs: Dict) -> Dict:
+            """Runnable para obtener celulares relevantes"""
+            presupuesto = inputs.get("presupuesto_detectado")
+
+            if presupuesto:
+                celulares = self.base_datos.buscar_por_presupuesto(presupuesto)
+            else:
+                celulares = self.base_datos.obtener_todos()
+
+            celulares_texto = "\n".join([
+                f"ID: {c.id}, {c.marca} {c.modelo}, S/{c.precio}, "
+                f"Cámara: {c.camara_principal}, RAM: {c.ram}, "
+                f"Puntuación foto: {c.puntuacion_foto}/10, "
+                f"Puntuación rendimiento: {c.puntuacion_rendimiento}/10"
+                for c in celulares[:6]  # Limitar para no saturar el contexto
+            ])
+
+            return {
+                **inputs,
+                "celulares_disponibles": celulares_texto
+            }
+
+        obtener_celulares_runnable = RunnableLambda(obtener_celulares_contexto)
+
+        # Cadenas combinadas y paralelas
+        self.cadena_chat = prompt_chat | self.llm_client | StrOutputParser()
+
+        # Cadena de recomendación con pipeline
+        self.cadena_recomendacion = (
+            analizar_runnable |
+            obtener_celulares_runnable |
+            prompt_recomendacion |
+            self.llm_client |
+            StrOutputParser()
+        )
+
+        # Cadenas paralelas para análisis simultáneo
+        self.cadenas_paralelas = RunnableParallel({
+            "respuesta_general": self.cadena_chat,
+            "analisis_consulta": analizar_runnable,
+            "contexto_celulares": obtener_celulares_runnable
+        })
+
+    def _es_consulta_celular(self, mensaje: str) -> bool:
+        """
+        Autor: Fabiola
+        Determina si la consulta es sobre recomendación de celulares
+        """
+        mensaje_lower = mensaje.lower()
+
+        # Palabras clave que indican búsqueda de celulares
+        palabras_recomendacion = [
+            'recomienda', 'recomendación', 'necesito', 'quiero', 'busco',
+            'ayuda', 'ayudame', 'ayúdame', 'gaming', 'juego', 'fotos',
+            'camara', 'cámara', 'presupuesto', 'barato', 'económico'
+        ]
+
+        # Palabras que indican dispositivos
+        palabras_dispositivo = ['celular', 'teléfono', 'telefono', 'smartphone', 'móvil', 'movil']
+
+        # Debe tener al menos una palabra de recomendación Y una de dispositivo
+        # O mencionar gaming/fotos + celular/smartphone
+        tiene_recomendacion = any(palabra in mensaje_lower for palabra in palabras_recomendacion)
+        tiene_dispositivo = any(palabra in mensaje_lower for palabra in palabras_dispositivo)
+
+        # Casos específicos de gaming o fotos
+        es_gaming_o_fotos = any(palabra in mensaje_lower for palabra in ['gaming', 'juego', 'fotos', 'camara', 'cámara'])
+
+        return (tiene_recomendacion and tiene_dispositivo) or (es_gaming_o_fotos and tiene_dispositivo)
+
+
+    def _es_consulta_tienda(self, mensaje: str) -> bool:
+        """
+        Autor: Dylan
+        Determina si la consulta es sobre información de la tienda
+        """
+        mensaje_lower = mensaje.lower()
+
+        # Si ya es una consulta de celular, no es de tienda
+        if self._es_consulta_celular(mensaje):
+            return False
+
+        palabras_ubicacion = ['ubicación', 'ubicacion', 'dirección', 'direccion', 'donde', 'dónde', 'maps', 'mapa']
+        palabras_contacto = ['contacto', 'teléfono', 'telefono', 'whatsapp', 'correo', 'email', 'llamar']
+        palabras_redes = ['facebook', 'instagram', 'redes', 'sociales', 'pagina', 'página', 'web', 'sitio']
+        palabras_horarios = ['horario', 'horarios', 'hora', 'horas', 'abierto', 'cerrado', 'atienden']
+        palabras_tienda = ['tienda', 'store', 'mijo', 'mijostore', 'negocio', 'local']
+
+        return (any(palabra in mensaje_lower for palabra in palabras_ubicacion) or
+                any(palabra in mensaje_lower for palabra in palabras_contacto) or
+                any(palabra in mensaje_lower for palabra in palabras_redes) or
+                any(palabra in mensaje_lower for palabra in palabras_horarios) or
+                any(palabra in mensaje_lower for palabra in palabras_tienda))
+
+    def _procesar_consulta_tienda(self, mensaje: str) -> str:
+        """
+        Autor: Dylan
+        Procesa consultas específicas sobre información de la tienda
+        """
+        mensaje_lower = mensaje.lower()
+
+        # Detectar tipo específico de consulta
+        if any(palabra in mensaje_lower for palabra in ['ubicación', 'ubicacion', 'dirección', 'direccion', 'donde', 'dónde', 'maps']):
+            return self.info_tienda.obtener_ubicacion()
+
+        elif any(palabra in mensaje_lower for palabra in ['contacto', 'teléfono', 'telefono', 'whatsapp', 'llamar', 'celular']):
+            return self.info_tienda.obtener_contacto()
+
+        elif any(palabra in mensaje_lower for palabra in ['facebook', 'instagram', 'redes', 'sociales', 'pagina', 'web']):
+            return self.info_tienda.obtener_redes_sociales()
+
+        else:
+            # Información completa si no es específica
+            return self.info_tienda.obtener_informacion_completa()
