@@ -53,3 +53,14 @@ class RecomendacionEstructurada(BaseModel):
     razonamiento: str = Field(description="Explicación detallada de la recomendación")
     coincidencia_presupuesto: bool = Field(description="Si cumple con el presupuesto")
     puntuacion_match: float = Field(description="Puntuación de coincidencia (0-1)")
+
+class ConsultaUsuario(BaseModel):
+    """
+    Autor: Dylan
+    Modelo para estructurar las consultas de usuario
+    """
+    presupuesto_max: Optional[float] = Field(description="Presupuesto máximo en soles")
+    prioridad_camara: bool = Field(description="Si prioriza calidad de cámara")
+    prioridad_rendimiento: bool = Field(description="Si prioriza rendimiento")
+    uso_principal: str = Field(description="Uso principal del dispositivo")
+    marca_preferida: Optional[str] = Field(description="Marca preferida si tiene")
