@@ -388,3 +388,50 @@ class ServidorLLM(ModeloAIBase):
         print(f"🌐 Servidor LLM iniciado en puerto {self.config.puerto_servidor}")
 
 # 💬 Gestor de Conversaciones
+class GestorConversacion:
+    """
+    Autor: Dylan
+    Maneja el historial y contexto de las conversaciones
+    """
+
+    def __init__(self):
+        self.conversaciones: Dict[str, List[tuple]] = {}
+        self.metadatos: Dict[str, Dict] = {}
+
+    def crear_sesion(self, id_sesion: str) -> None:
+        """
+        Autor: Dylan
+        Crea una nueva sesión de conversación
+        """
+        self.conversaciones[id_sesion] = []
+        self.metadatos[id_sesion] = {
+            "fecha_inicio": datetime.now(),
+            "total_mensajes": 0,
+            "estado": "activa"
+        }
+
+    def agregar_mensaje(self, id_sesion: str, rol: str, mensaje: str) -> None:
+        """
+        Autor: Dylan
+        Agrega un mensaje al historial de conversación
+        """
+        if id_sesion not in self.conversaciones:
+            self.crear_sesion(id_sesion)
+
+        self.conversaciones[id_sesion].append((rol, mensaje))
+        self.metadatos[id_sesion]["total_mensajes"] += 1
+
+    def obtener_historial(self, id_sesion: str) -> List[tuple]:
+        """
+        Autor: Dylan
+        Obtiene el historial completo de una conversación
+        """
+        return self.conversaciones.get(id_sesion, [])
+
+    def obtener_contexto_formateado(self, id_sesion: str) -> str:
+        """
+        Autor: Dylan
+        Obtiene el contexto formateado para el modelo
+        """
+        historial = self.obtener_historial(id_sesion)
+        return "\n".join([f"{rol}: {mensaje}" for rol, mensaje in historial])
