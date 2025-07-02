@@ -256,3 +256,20 @@ class BaseDatosCelulares:
     def obtener_todos(self) -> List[Celular]:
         """Obtiene todos los celulares"""
         return self.celulares
+    
+    # 🧠 Clase Base para Modelos de IA
+class ModeloAIBase(ABC):
+    """
+    Autor: Erick
+    Clase abstracta base para modelos de inteligencia artificial
+    """
+
+    @abstractmethod
+    def inicializar_modelo(self) -> None:
+        """Inicializa el modelo de IA"""
+        pass
+
+    @abstractmethod
+    def generar_respuesta(self, mensajes: List[Dict]) -> str:
+        """Genera una respuesta basada en los mensajes"""
+        pass
