@@ -1513,3 +1513,37 @@ class CelularBotSystem:
         print("🔗 El recomendador de celulares estará disponible en la URL que se muestre a continuación")
 
         self.interfaz_web.lanzar(compartir=True)
+
+# 🎯 Ejecución Principal
+if __name__ == "__main__":
+    """
+    Autor: Equipo Completo
+    Punto de entrada principal del sistema
+    """
+    print("=" * 70)
+    print("📱 CELULARBOT - SISTEMA DE RECOMENDACIÓN INTELIGENTE")
+    print("📚 Proyecto Universitario - LangChain + IA")
+    print("👥 Equipo de Desarrollo: Erick, Dylan, Fabiola")
+    print("=" * 70)
+    print()
+    print("🎯 CARACTERÍSTICAS IMPLEMENTADAS:")
+    print("✅ Cadenas LangChain (LCEL)")
+    print("✅ Runnable Functions")
+    print("✅ Cadenas Paralelas")
+    print("✅ Chain of Thought (CoT)")
+    print("✅ Salida Estructurada (Pydantic)")
+    print("✅ Mensajes Sistema/AI/Humano")
+    print("✅ Base de datos de celulares")
+    print("✅ Interfaz web avanzada")
+    print("=" * 70)
+
+    try:
+        # Crear e inicializar el sistema
+        sistema = CelularBotSystem()
+        sistema.ejecutar()
+
+    except KeyboardInterrupt:
+        print("\n⛔ Sistema detenido por el usuario")
+    except Exception as e:
+        print(f"❌ Error crítico en el sistema: {e}")
+        raise
