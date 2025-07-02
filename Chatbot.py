@@ -694,3 +694,88 @@ Responde de manera natural, amigable y profesional."""),
         else:
             # Información completa si no es específica
             return self.info_tienda.obtener_informacion_completa()
+def procesar_mensaje(self, mensaje: str, id_sesion: str = "default") -> str:
+        """
+        Autor: Dylan
+        Procesa un mensaje usando cadenas y análisis inteligente
+        """
+        # Agregar mensaje del usuario al historial
+        self.gestor_conversacion.agregar_mensaje(id_sesion, "user", mensaje)
+
+        # Obtener historial formateado
+        historial = self.gestor_conversacion.obtener_historial(id_sesion)
+
+        # Decidir qué tipo de respuesta dar basado en el contenido
+        if self._es_consulta_celular(mensaje):
+            # Usar cadena de recomendación para consultas de celulares
+            inputs = {
+                "mensaje": mensaje,
+                "chat_conversation": historial
+            }
+            respuesta = self.cadena_recomendacion.invoke(inputs)
+        elif self._es_consulta_tienda(mensaje):
+            # Respuesta directa sobre información de la tienda
+            respuesta = self._procesar_consulta_tienda(mensaje)
+        else:
+            # Usar cadena general para otras consultas
+            inputs = {
+                "contexto": "Eres un asistente de MijoStore, tienda especializada en celulares en Tacna",
+                "chat_conversation": historial
+            }
+            respuesta = self.cadena_chat.invoke(inputs)
+
+        # Agregar respuesta al historial
+        self.gestor_conversacion.agregar_mensaje(id_sesion, "ai", respuesta)
+
+        return respuesta
+
+    def procesar_recomendacion_estructurada(self, consulta: ConsultaUsuario) -> RecomendacionEstructurada:
+        """
+        Autor: Dylan
+        Procesa una recomendación usando salida estructurada con Pydantic
+        """
+        # Filtrar celulares por criterios
+        celulares_filtrados = self.base_datos.obtener_todos()
+
+        if consulta.presupuesto_max:
+            celulares_filtrados = [c for c in celulares_filtrados if c.precio <= consulta.presupuesto_max]
+
+        if consulta.marca_preferida:
+            celulares_filtrados = [c for c in celulares_filtrados if consulta.marca_preferida.lower() in c.marca.lower()]
+
+        # Ordenar por criterios de prioridad
+        if consulta.prioridad_camara:
+            celulares_filtrados.sort(key=lambda x: x.puntuacion_foto, reverse=True)
+        elif consulta.prioridad_rendimiento:
+            celulares_filtrados.sort(key=lambda x: x.puntuacion_rendimiento, reverse=True)
+        else:
+            # Ordenar por mejor relación calidad-precio
+            celulares_filtrados.sort(key=lambda x: (x.puntuacion_foto + x.puntuacion_rendimiento) / (x.precio / 1000), reverse=True)
+
+        if not celulares_filtrados:
+            # Devolver el más cercano al presupuesto si no hay matches exactos
+            celulares_filtrados = sorted(self.base_datos.obtener_todos(), key=lambda x: abs(x.precio - (consulta.presupuesto_max or 2000)))
+
+        # Crear recomendación estructurada
+        principal = celulares_filtrados[0]
+        alternativas = celulares_filtrados[1:4]  # Hasta 3 alternativas
+
+        # Calcular puntuación de match
+        puntuacion = 0.0
+        if consulta.presupuesto_max and principal.precio <= consulta.presupuesto_max:
+            puntuacion += 0.4
+        if consulta.prioridad_camara and principal.puntuacion_foto >= 8:
+            puntuacion += 0.3
+        if consulta.prioridad_rendimiento and principal.puntuacion_rendimiento >= 8:
+            puntuacion += 0.3
+
+        return RecomendacionEstructurada(
+            celular_recomendado=principal,
+            alternativas=alternativas,
+            razonamiento=f"Recomiendo el {principal.marca} {principal.modelo} porque cumple con tus criterios principales: "
+                        f"{'excelente cámara' if consulta.prioridad_camara else ''} "
+                        f"{'alto rendimiento' if consulta.prioridad_rendimiento else ''} "
+                        f"y está {'dentro de tu presupuesto' if consulta.presupuesto_max and principal.precio <= consulta.presupuesto_max else 'cerca de tu rango de precio'}.",
+            coincidencia_presupuesto=consulta.presupuesto_max is None or principal.precio <= consulta.presupuesto_max,
+            puntuacion_match=min(puntuacion, 1.0)
+        )
