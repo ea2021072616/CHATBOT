@@ -779,3 +779,15 @@ def procesar_recomendacion_estructurada(self, consulta: ConsultaUsuario) -> Reco
             coincidencia_presupuesto=consulta.presupuesto_max is None or principal.precio <= consulta.presupuesto_max,
             puntuacion_match=min(puntuacion, 1.0)
         )
+
+# 🎨 Interfaz de Usuario con Gradio
+class InterfazWeb:
+    """
+    Autor: Fabiola
+    Interfaz web moderna y responsive usando Gradio
+    """
+
+    def __init__(self, chatbot_engine: ChatbotEngine):
+        self.chatbot_engine = chatbot_engine
+        self.app = None
+        self._crear_interfaz()
