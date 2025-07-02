@@ -365,3 +365,10 @@ class ServidorLLM(ModeloAIBase):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
+    def generar_respuesta(self, mensajes: List[Dict]) -> str:
+        """
+        Autor: Erick
+        Implementación del método abstracto
+        """
+        res = self.modelo.create_chat_completion(messages=mensajes)
+        return res["choices"][0]["message"]["content"]
