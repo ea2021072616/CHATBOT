@@ -1060,3 +1060,16 @@ def _crear_interfaz(self) -> None:
                 uso_principal, marca_preferida, btn_recomendar, resultado_recomendacion,
                 btn_gaming, btn_fotos, btn_economico, btn_ubicacion
             )
+
+def _crear_catalogo_dataframe(self):
+        """Crea un DataFrame con el catálogo de celulares"""
+        celulares = self.chatbot_engine.base_datos.obtener_todos()
+        data = []
+        for c in celulares:
+            data.append([
+                c.marca, c.modelo, f"S/{c.precio:,.0f}",
+                c.ram, c.almacenamiento, c.camara_principal,
+                f"{c.puntuacion_foto}/10", f"{c.puntuacion_rendimiento}/10"
+            ])
+
+        return data
