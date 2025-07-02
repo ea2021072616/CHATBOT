@@ -791,3 +791,272 @@ class InterfazWeb:
         self.chatbot_engine = chatbot_engine
         self.app = None
         self._crear_interfaz()
+def _crear_interfaz(self) -> None:
+        """
+        Autor: Fabiola
+        Crea la interfaz web con diseño moderno
+        """
+        with gr.Blocks(
+            theme=gr.themes.Soft(),
+            title="Mijito Store - Asistente Virtual",
+            css=self._obtener_estilos_css()
+        ) as self.app:
+
+            # Header con diseño corporativo
+            gr.HTML("""
+            <div style="text-align: center; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);">
+                <h1 style="color: white; font-size: 2.5em; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-weight: bold;">
+                    📱 Mijito Store
+                </h1>
+                <h2 style="color: #fff; font-size: 1.3em; margin: 10px 0 0 0; opacity: 0.95; font-weight: 300;">
+                    Tu Asistente Virtual Inteligente
+                </h2>
+                <p style="color: #fff; margin: 15px 0 0 0; font-size: 1.1em; opacity: 0.9;">
+                    🤖 Powered by IA Avanzada • 🏪 Tacna, Perú • 📞 052632704
+                </p>
+            </div>
+            """)
+
+            # Estado del sistema con diseño mejorado
+            with gr.Row():
+                estado_sistema = gr.HTML("""
+                <div style="background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%); padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);">
+                    <span style="color: white; font-weight: bold; font-size: 1.1em;">
+                        ✅ Sistema Activo - Llama 3 8B + LangChain
+                    </span>
+                </div>
+                """)
+
+            # Pestañas principales
+            with gr.Tabs():
+                # Pestaña 1: Chat libre
+                with gr.TabItem("💬 Chat Libre"):
+                    with gr.Row():
+                        with gr.Column(scale=4):
+                            historial_chat = gr.Chatbot(
+                                label="💬 Conversación",
+                                height=400,
+                                type='messages',
+                                value=[{
+                                    "role": "assistant",
+                                    "content": """🎉 **¡Hola! Soy Mijito, tu asistente virtual de MijoStore** 📱
+
+¡Bienvenido! Estoy aquí para ayudarte a encontrar el celular perfecto según tus necesidades y presupuesto. Con tecnología de IA avanzada, puedo darte recomendaciones personalizadas.
+
+### 🤖 ¿En qué puedo ayudarte hoy?
+- 📱 Recomendarte el celular ideal para ti
+- 💰 Filtrar opciones por tu presupuesto
+- 📸 Encontrar los mejores para fotografía
+- 🎮 Celulares perfectos para gaming
+- 📍 Información sobre nuestras tiendas
+- 📞 Datos de contacto y ubicación
+
+### 💡 **¡Haz clic en una pregunta rápida para empezar!**"""
+                                }]
+                            )
+
+                            # Botones de preguntas rápidas con diseño corporativo
+                            gr.HTML("""
+                            <div style="background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); padding: 20px; border-radius: 15px; margin: 15px 0; border-left: 5px solid #ff6b35;">
+                                <h3 style="color: #ff6b35; margin: 0 0 15px 0; font-weight: bold;">🚀 Preguntas Rápidas</h3>
+                                <p style="color: #9a3412; margin: 0; font-size: 0.95em;">Haz clic en cualquier botón para obtener respuestas instantáneas</p>
+                            </div>
+                            """)
+
+                            with gr.Row():
+                                btn_gaming = gr.Button(
+                                    "🎮 Gaming 3000 soles",
+                                    variant="secondary",
+                                    size="sm",
+                                    elem_classes="btn-gaming"
+                                )
+                                btn_fotos = gr.Button(
+                                    "📸 Mejor cámara 2000 soles",
+                                    variant="secondary",
+                                    size="sm",
+                                    elem_classes="btn-fotos"
+                                )
+
+                            with gr.Row():
+                                btn_economico = gr.Button(
+                                    "💰 Celular económico 1500 soles",
+                                    variant="secondary",
+                                    size="sm",
+                                    elem_classes="btn-economico"
+                                )
+                                btn_ubicacion = gr.Button(
+                                    "📍 ¿Dónde están ubicados?",
+                                    variant="secondary",
+                                    size="sm",
+                                    elem_classes="btn-ubicacion"
+                                )
+
+                            mensaje_usuario = gr.Textbox(
+                                label="✍️ Escribe tu mensaje",
+                                placeholder="Ejemplo: Necesito un celular para fotos con presupuesto de 2000 soles",
+                                lines=2
+                            )
+
+                            with gr.Row():
+                                btn_enviar = gr.Button(
+                                    "🚀 Enviar",
+                                    variant="primary",
+                                    elem_classes="btn-enviar"
+                                )
+                                btn_limpiar = gr.Button(
+                                    "🧹 Limpiar Chat",
+                                    variant="secondary",
+                                    elem_classes="btn-limpiar"
+                                )
+
+                        with gr.Column(scale=1):
+                            gr.HTML("""
+                            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 15px; border-left: 5px solid #0ea5e9;">
+                                <h3 style="color: #0c4a6e; margin: 0 0 20px 0; font-weight: bold;">🎯 Funcionalidades</h3>
+                                <ul style="color: #075985; margin: 0; padding-left: 20px;">
+                                    <li style="margin-bottom: 8px;">📱 Recomendación inteligente de celulares</li>
+                                    <li style="margin-bottom: 8px;">💰 Filtros avanzados por presupuesto</li>
+                                    <li style="margin-bottom: 8px;">📸 Análisis especializado de cámaras</li>
+                                    <li style="margin-bottom: 8px;">⚡ Evaluación de rendimiento</li>
+                                    <li style="margin-bottom: 8px;">🔄 Respuestas estructuradas con IA</li>
+                                    <li style="margin-bottom: 8px;">🏪 Información completa de MijoStore</li>
+                                </ul>
+
+                                <h3 style="color: #0c4a6e; margin: 25px 0 15px 0; font-weight: bold;">💡 Ejemplos de consultas:</h3>
+                                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 10px; font-size: 0.9em; color: #164e63;">
+                                    <p style="margin: 5px 0;">• "Celular para gaming 3000 soles"</p>
+                                    <p style="margin: 5px 0;">• "Mejor cámara presupuesto 1500"</p>
+                                    <p style="margin: 5px 0;">• "¿Dónde están ubicados?"</p>
+                                    <p style="margin: 5px 0;">• "Horarios de atención"</p>
+                                    <p style="margin: 5px 0;">• "Redes sociales de la tienda"</p>
+                                </div>
+                            </div>
+                            """)
+
+                # Pestaña 2: Recomendación estructurada
+                with gr.TabItem("🎯 Recomendación Avanzada"):
+                    with gr.Row():
+                        with gr.Column():
+                            gr.HTML("""
+                            <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); padding: 25px; border-radius: 15px; border-left: 5px solid #f59e0b; margin-bottom: 20px;">
+                                <h3 style="color: #92400e; margin: 0 0 15px 0; font-weight: bold;">⚙️ Configuración de Búsqueda Avanzada</h3>
+                                <p style="color: #a16207; margin: 0; font-size: 0.95em;">Personaliza tu búsqueda para encontrar el celular perfecto</p>
+                            </div>
+                            """)
+
+                            presupuesto_input = gr.Slider(
+                                minimum=500, maximum=6000, value=2000, step=100,
+                                label="💰 Presupuesto Máximo (Soles)"
+                            )
+
+                            prioridad_camara = gr.Checkbox(
+                                label="📸 Priorizar Calidad de Cámara",
+                                value=False
+                            )
+
+                            prioridad_rendimiento = gr.Checkbox(
+                                label="⚡ Priorizar Rendimiento",
+                                value=False
+                            )
+
+                            uso_principal = gr.Dropdown(
+                                choices=["Fotografía", "Gaming", "Trabajo", "Uso general", "Redes sociales"],
+                                label="📋 Uso Principal",
+                                value="Uso general"
+                            )
+
+                            marca_preferida = gr.Dropdown(
+                                choices=["Sin preferencia", "Samsung", "iPhone", "Xiaomi", "Google", "OnePlus", "Realme"],
+                                label="🏷️ Marca Preferida",
+                                value="Sin preferencia"
+                            )
+
+                            btn_recomendar = gr.Button(
+                                "🔍 Buscar Recomendación",
+                                variant="primary",
+                                elem_classes="btn-recomendar"
+                            )
+
+                        with gr.Column():
+                            resultado_recomendacion = gr.Markdown(
+                                label="📋 Resultado",
+                                value="Configura tus preferencias y presiona 'Buscar Recomendación'"
+                            )
+
+                # Pestaña 3: Información de la Tienda
+                with gr.TabItem("🏪 MijoStore"):
+                    gr.HTML("""
+                    <div style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);">
+                        <h1 style="color: white; font-size: 2.5em; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🏪 MijoStore Tacna</h1>
+                        <p style="color: white; font-size: 1.3em; margin: 15px 0 0 0; opacity: 0.95;">Tu tienda de confianza para celulares y tecnología</p>
+                    </div>
+                    """)
+
+                    with gr.Row():
+                        with gr.Column():
+                            gr.HTML("""
+                            <div style="background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 100%); padding: 25px; border-radius: 15px; border-left: 5px solid #a855f7; margin-bottom: 20px;">
+                                <h3 style="color: #7c2d92; margin: 0 0 20px 0; font-weight: bold;">📍 Nuestras Ubicaciones</h3>
+                                <div style="color: #86198f;">
+                                    <p><strong>🏪 Tienda Principal:</strong><br>Calle Zela Nro 267, Tacna</p>
+                                    <p><strong>🏪 Sucursal:</strong><br>Cnel. Inclan 382-196, Tacna 23001</p>
+                                </div>
+                            </div>
+
+                            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 25px; border-radius: 15px; border-left: 5px solid #22c55e; margin-bottom: 20px;">
+                                <h3 style="color: #15803d; margin: 0 0 20px 0; font-weight: bold;">📞 Contáctanos</h3>
+                                <div style="color: #166534;">
+                                    <p><strong>📞 Teléfono:</strong> 052632704</p>
+                                    <p><strong>📱 Celular/WhatsApp:</strong> +51952909892</p>
+                                    <p><strong>📧 Email:</strong> mijostore.online@gmail.com</p>
+                                </div>
+                            </div>
+                            """)
+
+                        with gr.Column():
+                            gr.HTML("""
+                            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 25px; border-radius: 15px; border-left: 5px solid #3b82f6; margin-bottom: 20px;">
+                                <h3 style="color: #1d4ed8; margin: 0 0 20px 0; font-weight: bold;">🌐 Síguenos en Redes</h3>
+                                <div style="color: #1e40af;">
+                                    <p><strong>📘 Facebook:</strong><br><a href="https://www.facebook.com/mijostore.tacna" target="_blank" style="color: #3b82f6;">MijoStore Tacna</a></p>
+                                    <p><strong>📸 Instagram:</strong><br><a href="https://www.instagram.com/mijostoretacna/?hl=es-la" target="_blank" style="color: #3b82f6;">@mijostoretacna</a></p>
+                                    <p><strong>🌍 Sitio Web:</strong><br><a href="https://mijostore.pe" target="_blank" style="color: #3b82f6;">mijostore.pe</a></p>
+                                </div>
+                            </div>
+
+                            <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); padding: 25px; border-radius: 15px; border-left: 5px solid #f59e0b; margin-bottom: 20px;">
+                                <h3 style="color: #92400e; margin: 0 0 20px 0; font-weight: bold;">🕒 Horarios de Atención</h3>
+                                <div style="color: #a16207;">
+                                    <p><strong>Lunes a Sábado:</strong> 9:00 AM - 8:00 PM</p>
+                                    <p><strong>Domingos:</strong> 10:00 AM - 6:00 PM</p>
+                                </div>
+                            </div>
+                            """)
+
+                    gr.HTML("""
+                    <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 30px; border-radius: 15px; text-align: center; border: 2px solid #ff6b35;">
+                        <h3 style="color: #ff6b35; margin: 0 0 15px 0; font-weight: bold;">🛍️ Nuestra Especialidad</h3>
+                        <p style="color: #475569; font-size: 1.1em; margin: 0;">Venta de celulares, accesorios y servicios técnicos especializados</p>
+                        <div style="margin-top: 20px;">
+                            <a href="https://maps.app.goo.gl/uc2KXhQr7bEHiZA86" target="_blank" style="background: #ff6b35; color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; margin: 5px; display: inline-block; font-weight: bold;">🗺️ Ver en Google Maps</a>
+                            <a href="https://api.whatsapp.com/send/?phone=51952909892&text&type=phone_number&app_absent=0" target="_blank" style="background: #25d366; color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; margin: 5px; display: inline-block; font-weight: bold;">💬 WhatsApp Directo</a>
+                        </div>
+                    </div>
+                    """)
+
+                # Pestaña 4: Catálogo completo
+                with gr.TabItem("📋 Catálogo"):
+                    catalogo_df = self._crear_catalogo_dataframe()
+                    gr.Dataframe(
+                        value=catalogo_df,
+                        label="📱 Catálogo de Celulares Disponibles",
+                        interactive=False
+                    )
+
+            # Configurar eventos
+            self._configurar_eventos(
+                historial_chat, mensaje_usuario, btn_enviar, btn_limpiar,
+                presupuesto_input, prioridad_camara, prioridad_rendimiento,
+                uso_principal, marca_preferida, btn_recomendar, resultado_recomendacion,
+                btn_gaming, btn_fotos, btn_economico, btn_ubicacion
+            )
